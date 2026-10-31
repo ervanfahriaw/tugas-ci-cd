@@ -63,3 +63,10 @@ curl -i -X DELETE "http://localhost:5000/messages?index=0"
 ```bash
 python -m unittest test_app.py
 ```
+
+---
+
+## 💾 Pengujian Persistensi Data (Volume Testing)
+Data pesan disimpan secara persisten di Docker named volume `production-api-data` pada direktori `/var/lib/backend_data`.
+Bahkan ketika container dihentikan, dihapus (`docker rm`), atau di-redeploy melalui CI/CD pipeline, file `messages.json` tetap utuh.
+
