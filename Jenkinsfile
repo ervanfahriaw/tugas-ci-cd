@@ -52,9 +52,10 @@ pipeline {
                 docker rm ${CONTAINER_NAME} || true
                 echo "Ensuring named volume exists for data persistence..."
                 docker volume create ${VOLUME_NAME}
-                echo "Starting production container with named volume..."
+                echo "Starting production container with named volume on jenkins-net network..."
                 docker run -d \
                   --name ${CONTAINER_NAME} \
+                  --network jenkins-net \
                   -p ${PORT_MAPPING} \
                   -v ${VOLUME_NAME}:/var/lib/backend_data \
                   --restart unless-stopped \
@@ -68,7 +69,9 @@ pipeline {
                 echo 'Waiting for container application startup...'
                 sh 'sleep 3'
                 echo 'Performing automated HTTP health check...'
-                sh 'curl -fsS http://localhost:5000/health'
+                sh '''
+                curl -fsS http://${CONTAINER_NAME}:5000/health || curl -fsS http://localhost:5000/health
+                '''
                 echo 'Displaying recent container runtime logs...'
                 sh 'docker logs --tail 20 ${CONTAINER_NAME}'
             }
